@@ -216,8 +216,23 @@ def report_metrics(data, groups):
         percent = data.coverage(pattern)
 
         if percent is not None:
-            print u"Sending {} ==> {}%".format(metric, percent)
+            print u"Sending to DataDog {} ==> {}%".format(metric, percent)
             dog_http_api.metric(metric, percent)
+            print u"Writing to file {}.".format(metric)
+            write_metric_to_file(metric, percent)
+
+
+def write_metric_to_file(filename, percent):
+    """
+    Output metric data to file. Name of file is the metric, and the contents are the value.
+    This can be used for various downstream jobs/processes that need to read the metrics
+    from a place other than datadog.
+    """
+    try:
+        with open(filename, 'w') as metric_file:
+            metric_file.write(str(percent).strip())
+    except IOError:
+        print u"Warning: could not write metric data to {}".format(filename)
 
 
 def main():
@@ -240,7 +255,7 @@ def main():
     print "Parsing reports..."
     metrics = parse_reports(report_paths)
 
-    print "Reporting metrics to DataDog..."
+    print "Reporting metrics..."
     report_metrics(metrics, group_dict)
     print "Done."
 
