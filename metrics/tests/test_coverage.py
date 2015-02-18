@@ -1,7 +1,9 @@
 import os
+import StringIO
 from unittest import TestCase
+from mock import patch, MagicMock
 from ddt import ddt, unpack, data
-from ..coverage import CoverageData, CoverageParseError
+from ..coverage import CoverageData, CoverageParseError, configure_datadog
 
 
 @ddt
@@ -54,3 +56,20 @@ class CoverageTest(TestCase):
         path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fixtures", name)
         with open(path) as fixture_file:
             return fixture_file.read()
+
+
+class MainTest(TestCase):
+
+    @patch('sys.stdout', new_callable=StringIO.StringIO)
+    def test_configure_datadog(self, mock_stdout):
+        """
+        If no DATADOG_API_KEY is set, the script should exit with a helpful message.
+        """
+        helpful_message = u"Must specify DataDog API key with env var DATADOG_API_KEY\n"
+        _env_vars= dict(os.environ)
+        os.environ.clear()
+        with self.assertRaises(SystemExit):
+            configure_datadog()
+        self.assertEqual(mock_stdout.getvalue(), helpful_message)
+        os.environ.update(_env_vars)
+
