@@ -1,7 +1,7 @@
 import os
 import StringIO
 from unittest import TestCase
-from mock import patch, MagicMock
+from mock import patch
 from ddt import ddt, unpack, data
 from ..coverage import CoverageData, CoverageParseError, configure_datadog
 
@@ -66,10 +66,9 @@ class MainTest(TestCase):
         If no DATADOG_API_KEY is set, the script should exit with a helpful message.
         """
         helpful_message = u"Must specify DataDog API key with env var DATADOG_API_KEY\n"
-        _env_vars= dict(os.environ)
+        _env_vars = dict(os.environ)
         os.environ.clear()
         with self.assertRaises(SystemExit):
             configure_datadog()
         self.assertEqual(mock_stdout.getvalue(), helpful_message)
         os.environ.update(_env_vars)
-

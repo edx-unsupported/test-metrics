@@ -34,6 +34,7 @@ USAGE = u"USAGE: {prog} GROUPS_JSON COVER_XML_1 [COVER_XML_2, ...] "
 
 
 class CoverageParseError(Exception):
+
     """
     Error occurred while parsing a coverage report.
     """
@@ -41,6 +42,7 @@ class CoverageParseError(Exception):
 
 
 class CoverageData(object):
+
     """
     Aggregate coverage reports.
     """
@@ -103,7 +105,6 @@ class CoverageData(object):
                             elif line_num not in self._coverage[class_filename]:
                                 self._coverage[class_filename][line_num] = 0
 
-
     def coverage(self, source_pattern="*"):
         """
         Calculate line coverage percentage (float) for source files that match
@@ -127,7 +128,6 @@ class CoverageData(object):
         else:
             print u"Warning: No lines found in source files that match {}".format(source_pattern)
             return None
-
 
     def _parse_report(self, report_path):
         """
