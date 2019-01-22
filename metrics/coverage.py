@@ -1,9 +1,8 @@
 """
-Aggregate coverage data from XML reports and send to DataDog.
+Aggregate coverage data from XML reports.
 
 Example usage:
 
-    export DATADOG_API_KEY=xxxx
     python -m metrics.coverage groups.json report_1.xml report_2.xml
 
 where groups.json is a JSON-encoded dict mapping group names to source file glob patterns:
@@ -12,8 +11,7 @@ where groups.json is a JSON-encoded dict mapping group names to source file glob
     "group_2": "group2/*.py"
 }
 
-This would calculate line coverage percentages for source files in each group,
-and send those metrics to DataDog:
+This would calculate line coverage percentages for source files in each group:
 
 testeng.coverage.group_1 ==> 89.123
 testeng.coverage.group_2 ==> 45.523
@@ -22,12 +20,10 @@ The tool uses the *union* of covered lines across each of the input
 coverage XML reports.  If a line is covered *anywhere*, it's considered covered.
 """
 
-import os
 import sys
 import fnmatch
 import json
 from lxml import etree
-from dogapi import dog_http_api
 
 
 USAGE = u"USAGE: {prog} GROUPS_JSON COVER_XML_1 [COVER_XML_2, ...] "
@@ -146,21 +142,6 @@ class CoverageData(object):
             return None
 
 
-def configure_datadog():
-    """
-    Read API key from environment vars, exiting with an error
-    if they are not set.
-    """
-    api_key = os.environ.get('DATADOG_API_KEY')
-
-    if api_key is None:
-        print u"Must specify DataDog API key with env var DATADOG_API_KEY"
-        sys.exit(1)
-
-    else:
-        dog_http_api.api_key = api_key
-
-
 def load_group_defs(group_json_path):
     """
     Load the dictionary mapping group names to source file patterns
@@ -205,28 +186,25 @@ def parse_reports(report_paths):
 
 def report_metrics(data, groups):
     """
-    Given a `CoverageData` object, send coverage percentages
-    for each group to DataDog.
+    Given a `CoverageData` object, write coverage percentages
+    for each group to a file.
 
     `groups` is a dict mapping aggregate group names to source file patterns.
-    Group names are used in the name of the metric sent to DataDog.
+    Group names are used in the name of the metric.
     """
     for group_name, pattern in groups.iteritems():
         metric = 'test_eng.coverage.{group}'.format(group=group_name.replace(' ', '_'))
         percent = data.coverage(pattern)
 
         if percent is not None:
-            print u"Sending to DataDog {} ==> {}%".format(metric, percent)
-            dog_http_api.metric(metric, percent)
-            print u"Writing to file {}.".format(metric)
+            print u"Writing to file {} ==> {}%.".format(metric, percent)
             write_metric_to_file(metric, percent)
 
 
 def write_metric_to_file(filename, percent):
     """
     Output metric data to file. Name of file is the metric, and the contents are the value.
-    This can be used for various downstream jobs/processes that need to read the metrics
-    from a place other than datadog.
+    This can be used for various downstream jobs/processes that need to read the metrics.
     """
     try:
         with open(filename, 'w') as metric_file:
@@ -237,7 +215,7 @@ def write_metric_to_file(filename, percent):
 
 def main():
     """
-    Find, parse, and report coverage metrics to DataDog.
+    Find, parse, and report coverage metrics.
     """
     if len(sys.argv) < 3:
         print USAGE.format(prog=sys.argv[0])
@@ -248,9 +226,6 @@ def main():
 
     print "Loading group definitions..."
     group_dict = load_group_defs(group_json_path)
-
-    print "Configuring DataDog..."
-    configure_datadog()
 
     print "Parsing reports..."
     metrics = parse_reports(report_paths)

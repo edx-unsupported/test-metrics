@@ -1126,23 +1126,6 @@
 						<line hits="1" number="207"/>
 					</lines>
 				</class>
-				<class branch-rate="0" complexity="0" filename="common/djangoapps/datadog/__init__.py" line-rate="0" name="common/djangoapps/datadog/__init__">
-					<methods/>
-					<lines/>
-				</class>
-				<class branch-rate="0" complexity="0" filename="common/djangoapps/datadog/startup.py" line-rate="0.875" name="common/djangoapps/datadog/startup">
-					<methods/>
-					<lines>
-						<line hits="1" number="1"/>
-						<line hits="1" number="3"/>
-						<line hits="1" number="6"/>
-						<line hits="1" number="16"/>
-						<line hits="1" number="18"/>
-						<line hits="0" number="19"/>
-						<line hits="1" number="23"/>
-						<line hits="1" number="25"/>
-					</lines>
-				</class>
 				<class branch-rate="0" complexity="0" filename="common/djangoapps/django_comment_common/__init__.py" line-rate="0" name="common/djangoapps/django_comment_common/__init__">
 					<methods/>
 					<lines/>
